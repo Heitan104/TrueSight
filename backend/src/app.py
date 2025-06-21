@@ -1,6 +1,5 @@
 import os
 from flask import Flask, request, jsonify
-from src.routes import init_routes
 
 def create_app():
     app = Flask(__name__)
@@ -41,8 +40,6 @@ def create_app():
             return jsonify({
                 "error": "URL processing not implemented yet"
             })
-    # Initialize routes
-    init_routes(app)
 
     return app
 
