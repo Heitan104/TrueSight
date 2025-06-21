@@ -71,7 +71,7 @@ const InputSelector = () => {
 
         {/* Divider line - now clearly visible */}
         <View style={styles.divider}>
-          <Text style={styles.dividerLabel}>-------------------- OR --------------------</Text>
+          <Text style={styles.dividerLabel}>-------------------- OR -------------------- </Text>
         </View>
 
         {/* Dropbox area with file types */}
