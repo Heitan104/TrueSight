@@ -106,6 +106,12 @@ const styles = StyleSheet.create({
     color: '#555',
     fontSize: 12,
   },
+  downloadingText: {
+  color: '#9b59b6',
+  fontSize: 14,
+  marginTop: 10,
+  fontStyle: 'italic',
+},
 });
 
 export default styles;
