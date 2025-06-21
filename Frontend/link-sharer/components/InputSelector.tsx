@@ -23,7 +23,7 @@ const InputSelector = () => {
   const pickFile = async () => {
     try {
       await ensureDirExists();
-      
+
       // Request permissions (modern Expo way)
       const { status } = await MediaLibrary.requestPermissionsAsync();
       if (status !== 'granted') {
@@ -36,20 +36,7 @@ const InputSelector = () => {
         copyToCacheDirectory: false,
       });
 
-      if (res.type === 'success') {
-        const sourceUri = res.uri;
-        const fileName = res.name || `video_${Date.now()}.mp4`;
-        const destUri = `${FileSystem.documentDirectory}toAnalyze/${fileName}`;
-        
-        setIsDownloading(true);
-        await FileSystem.copyAsync({
-          from: sourceUri,
-          to: destUri,
-        });
-        
-        setFileName(fileName);
-        Alert.alert('Success', `Video saved for analysis`);
-      }
+    
     } catch (error) {
       console.error('Error:', error);
       Alert.alert('Error', 'Failed to save video');
