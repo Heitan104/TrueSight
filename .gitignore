@@ -13,6 +13,8 @@ backend/env/
 
 # dependencies
 node_modules/
+.vercel
+.env.txt
 
 # Expo
 .expo/
