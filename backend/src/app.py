@@ -19,7 +19,8 @@ def create_app():
     # Load model once on startup
     clear_session()
     model = Meso4()
-    model.load('models/Meso4_DF.h5')
+    model_path = os.path.join(BASE_DIR, 'models', 'Meso4_DF.h5')
+    model.load(model_path)
 
     @app.route('/')
     def index():
