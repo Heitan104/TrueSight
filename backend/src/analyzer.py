@@ -2,7 +2,7 @@ import shutil
 import os
 
 from utils import extract_frames, cleanup_file, preprocess_image
-
+from utils.classification_utils import calc_vid_fconf
 
 
 def analyzer(UPLOAD_FOLDER, model, video, save_path):
@@ -23,20 +23,9 @@ def analyzer(UPLOAD_FOLDER, model, video, save_path):
         prob = model.predict(img)[0][0]
         results.append(prob)
 
-    avg_conf = sum(results) / len(results)
-
-    if avg_conf > 0.6:
-        label = 'real'
-    elif avg_conf > 0.4:
-        label = 'unclear'
-    else:
-        label = 'fake'
+    answer = calc_vid_fconf(results)
 
     shutil.rmtree(frames_dir)
     cleanup_file(save_path)
 
-    return {
-        "probability": label,
-        "likely_real": round(avg_conf.item(), 3),
-        "explanation": [round(p.item(), 3) for p in results]
-    }
+    return answer
