@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Shared to TrueSight</title>
+</head>
+<body>
+  <h1>Received Shared Content</h1>
+  <div id="content">Loading...</div>
+
+  <script>
+    window.onload = async () => {
+      const formData = new FormData(await (await fetch(location.href, { method: 'POST' })).formData?.() || {});
+
+      const title = formData.get("title");
+      const text = formData.get("text");
+      const url = formData.get("url");
+
+      document.getElementById("content").innerHTML = `
+        <p><strong>Title:</strong> ${title}</p>
+        <p><strong>Text:</strong> ${text}</p>
+        <p><strong>URL:</strong> <a href="${url}" target="_blank">${url}</a></p>
+      `;
+    };
+  </script>
+</body>
+</html>

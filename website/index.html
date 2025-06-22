@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>True Sight</title>
+  <meta name="theme-color" content="#222">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="styles.css">
+  <!-- For Samsung Internet -->
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="application-name" content="True Sight">
+  <!-- iOS PWA Meta Tags -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="apple-touch-icon" href="/icons/icon-192.png">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>TRUE SIGHT</h1>
+    </header>
+    
+    <main>
+      <!-- Link Submission Form -->
+      <form id="linkForm" class="link-box">
+        <input type="text" id="linkInput" placeholder="Paste your link here" required>
+        <div class="button-group">
+          <button type="button" id="pasteBtn"><i class="fas fa-paste"></i> Paste</button>
+          <button type="submit" id="sendBtn"><i class="fas fa-arrow-right"></i></button>
+        </div>
+      </form>
+      <div id="linkStatus" class="status-message"></div>
+      
+      <div class="divider">
+        <span>-------------------- OR --------------------</span>
+      </div>
+      
+      <!-- File Upload Form -->
+      <form id="uploadForm" class="drop-zone">
+        <input type="file" id="fileInput" accept=".mp4,.mov,.jpg,.png" style="display: none;">
+        <label for="fileInput" class="file-upload-label">
+          <i class="fas fa-cloud-upload-alt cloud-icon"></i>
+          <p>Supported files: .mp4, .mov, .jpg, .png</p>
+          <p class="hint">(Click or drag files here)</p>
+        </label>
+        <div id="selectedFileName" class="selected-file"></div>
+        <button type="submit" id="uploadBtn" class="upload-button" disabled>
+          <i class="fas fa-paper-plane"></i> Analyze File
+        </button>
+        <div id="uploadStatus" class="status-message"></div>
+      </form>
+    </main>
+  </div>
+
+  <script src="/app.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js');
+      });
+    }
+
+    // File Upload Logic
+    const fileInput = document.getElementById('fileInput');
+    const uploadForm = document.getElementById('uploadForm');
+    const uploadBtn = document.getElementById('uploadBtn');
+    const selectedFileName = document.getElementById('selectedFileName');
+    const uploadStatus = document.getElementById('uploadStatus');
+    const dropZone = document.querySelector('.drop-zone');
+
+    // Handle file selection
+    fileInput.addEventListener('change', (e) => {
+      if (fileInput.files.length) {
+        const file = fileInput.files[0];
+        selectedFileName.textContent = `Selected: ${file.name}`;
+        uploadBtn.disabled = false;
+        dropZone.classList.add('file-selected');
+      }
+    });
+
+    // Handle drag and drop
+    dropZone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropZone.classList.add('dragover');
+    });
+
+    dropZone.addEventListener('dragleave', () => {
+      dropZone.classList.remove('dragover');
+    });
+
+    dropZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropZone.classList.remove('dragover');
+      
+      if (e.dataTransfer.files.length) {
+        fileInput.files = e.dataTransfer.files;
+        const file = fileInput.files[0];
+        selectedFileName.textContent = `Selected: ${file.name}`;
+        uploadBtn.disabled = false;
+        dropZone.classList.add('file-selected');
+      }
+    });
+
+    // Handle file form submission
+    uploadForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      if (!fileInput.files.length) return;
+      
+      const file = fileInput.files[0];
+      const formData = new FormData();
+      formData.append('file', file);
+
+      uploadBtn.disabled = true;
+      uploadStatus.textContent = 'Analyzing file...';
+      uploadStatus.style.color = '#000';
+
+      try {
+        const response = await fetch('http://localhost:5000/analyze', {
+          method: 'POST',
+          body: formData
+        });
+
+        if (!response.ok) {
+          throw new Error('File analysis failed');
+        }
+
+        const result = await response.json();
+        uploadStatus.textContent = 'File analysis complete!';
+        uploadStatus.style.color = 'green';
+        console.log('Analysis result:', result);
+        
+      } catch (error) {
+        console.error('Error:', error);
+        uploadStatus.textContent = `Error: ${error.message}`;
+        uploadStatus.style.color = 'red';
+      } finally {
+        uploadBtn.disabled = false;
+      }
+    });
+
+    // Link Submission Logic
+    const linkForm = document.getElementById('linkForm');
+    const linkInput = document.getElementById('linkInput');
+    const sendBtn = document.getElementById('sendBtn');
+    const pasteBtn = document.getElementById('pasteBtn');
+    const linkStatus = document.getElementById('linkStatus');
+
+    // Paste button functionality
+    pasteBtn.addEventListener('click', async () => {
+      try {
+        const text = await navigator.clipboard.readText();
+        linkInput.value = text;
+      } catch (err) {
+        console.error('Failed to read clipboard:', err);
+        linkStatus.textContent = 'Could not access clipboard';
+        linkStatus.style.color = 'red';
+        setTimeout(() => linkStatus.textContent = '', 3000);
+      }
+    });
+
+    // Handle link form submission
+    linkForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const link = linkInput.value.trim();
+      if (!link) return;
+      
+      sendBtn.disabled = true;
+      linkStatus.textContent = 'Analyzing link...';
+      linkStatus.style.color = '#000';
+
+      try {
+        const response = await fetch('http://localhost:5000/analyze', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ url: link })
+        });
+
+        if (!response.ok) {
+          throw new Error('Link analysis failed');
+        }
+
+        const result = await response.json();
+        linkStatus.textContent = 'Link analysis complete!';
+        linkStatus.style.color = 'green';
+        console.log('Analysis result:', result);
+        
+      } catch (error) {
+        console.error('Error:', error);
+        linkStatus.textContent = `Error: ${error.message}`;
+        linkStatus.style.color = 'red';
+      } finally {
+        sendBtn.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>
