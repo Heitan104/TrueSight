@@ -55,149 +55,139 @@
   </div>
 
   <script src="/app.js"></script>
+  
   <script>
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js');
-      });
-    }
-
-    // File Upload Logic
-    const fileInput = document.getElementById('fileInput');
-    const uploadForm = document.getElementById('uploadForm');
-    const uploadBtn = document.getElementById('uploadBtn');
-    const selectedFileName = document.getElementById('selectedFileName');
-    const uploadStatus = document.getElementById('uploadStatus');
-    const dropZone = document.querySelector('.drop-zone');
-
-    // Handle file selection
-    fileInput.addEventListener('change', (e) => {
-      if (fileInput.files.length) {
-        const file = fileInput.files[0];
-        selectedFileName.textContent = `Selected: ${file.name}`;
-        uploadBtn.disabled = false;
-        dropZone.classList.add('file-selected');
-      }
-    });
-
-    // Handle drag and drop
-    dropZone.addEventListener('dragover', (e) => {
-      e.preventDefault();
-      dropZone.classList.add('dragover');
-    });
-
-    dropZone.addEventListener('dragleave', () => {
-      dropZone.classList.remove('dragover');
-    });
-
-    dropZone.addEventListener('drop', (e) => {
-      e.preventDefault();
-      dropZone.classList.remove('dragover');
-      
-      if (e.dataTransfer.files.length) {
-        fileInput.files = e.dataTransfer.files;
-        const file = fileInput.files[0];
-        selectedFileName.textContent = `Selected: ${file.name}`;
-        uploadBtn.disabled = false;
-        dropZone.classList.add('file-selected');
-      }
-    });
-
-    // Handle file form submission
-    uploadForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      
-      if (!fileInput.files.length) return;
-      
-      const file = fileInput.files[0];
-      const formData = new FormData();
-      formData.append('file', file);
-
-      uploadBtn.disabled = true;
-      uploadStatus.textContent = 'Analyzing file...';
-      uploadStatus.style.color = '#000';
-
-      try {
-        const response = await fetch('http://localhost:5000/analyze', {
-          method: 'POST',
-          body: formData
-        });
-
-        if (!response.ok) {
-          throw new Error('File analysis failed');
-        }
-
-        const result = await response.json();
-        uploadStatus.textContent = 'File analysis complete!';
-        uploadStatus.style.color = 'green';
-        console.log('Analysis result:', result);
-        
-      } catch (error) {
-        console.error('Error:', error);
-        uploadStatus.textContent = `Error: ${error.message}`;
-        uploadStatus.style.color = 'red';
-      } finally {
-        uploadBtn.disabled = false;
-      }
-    });
-
-    // Link Submission Logic
+    // Link Submission Logic with Debugging
     const linkForm = document.getElementById('linkForm');
     const linkInput = document.getElementById('linkInput');
     const sendBtn = document.getElementById('sendBtn');
     const pasteBtn = document.getElementById('pasteBtn');
     const linkStatus = document.getElementById('linkStatus');
 
-    // Paste button functionality
+    // Enhanced paste button with error handling
     pasteBtn.addEventListener('click', async () => {
       try {
+        const permission = await navigator.permissions.query({ name: 'clipboard-read' });
+        if (permission.state === 'denied') {
+          throw new Error('Clipboard permission denied');
+        }
         const text = await navigator.clipboard.readText();
         linkInput.value = text;
+        linkStatus.textContent = 'Pasted from clipboard!';
+        linkStatus.style.color = 'green';
+        setTimeout(() => linkStatus.textContent = '', 2000);
       } catch (err) {
-        console.error('Failed to read clipboard:', err);
-        linkStatus.textContent = 'Could not access clipboard';
+        console.error('Clipboard error:', err);
+        linkStatus.textContent = 'Clipboard access failed - paste manually';
         linkStatus.style.color = 'red';
         setTimeout(() => linkStatus.textContent = '', 3000);
       }
     });
 
-    // Handle link form submission
+    // Enhanced link submission with debugging
     linkForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       
       const link = linkInput.value.trim();
-      if (!link) return;
+      if (!link) {
+        linkStatus.textContent = 'Please enter a link first';
+        linkStatus.style.color = 'red';
+        return;
+      }
       
       sendBtn.disabled = true;
       linkStatus.textContent = 'Analyzing link...';
       linkStatus.style.color = '#000';
 
       try {
+        console.group('Link Submission Debug');
+        console.log('Attempting to send link:', link);
+        
+        // Test backend connectivity first
+        console.log('Testing backend connectivity...');
+        const pingStart = Date.now();
+        const pingResponse = await fetch('http://localhost:5000/ping', {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' }
+        }).catch(() => null);
+        
+        if (!pingResponse || !pingResponse.ok) {
+          throw new Error('Backend is not responding. Is your server running?');
+        }
+        console.log(`Backend ping successful (${Date.now() - pingStart}ms)`);
+
+        // Send the actual request
+        console.log('Sending analysis request...');
+        const startTime = Date.now();
         const response = await fetch('http://localhost:5000/analyze', {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
           },
           body: JSON.stringify({ url: link })
         });
-
+        const duration = Date.now() - startTime;
+        
+        console.log(`Received response in ${duration}ms`, response);
+        
         if (!response.ok) {
-          throw new Error('Link analysis failed');
+          const errorData = await response.json().catch(() => ({}));
+          console.error('Backend error:', errorData);
+          throw new Error(errorData.message || `Server error: ${response.status}`);
         }
 
         const result = await response.json();
-        linkStatus.textContent = 'Link analysis complete!';
-        linkStatus.style.color = 'green';
         console.log('Analysis result:', result);
         
+        linkStatus.textContent = 'Analysis complete!';
+        linkStatus.style.color = 'green';
+        
+        // Optional: Redirect or display results
+        if (result.redirectUrl) {
+          window.location.href = result.redirectUrl;
+        }
+        
       } catch (error) {
-        console.error('Error:', error);
-        linkStatus.textContent = `Error: ${error.message}`;
+        console.error('Full error:', error);
+        
+        // Detailed error messages
+        if (error.message.includes('Failed to fetch')) {
+          linkStatus.textContent = 'Connection failed - check backend server';
+        } else if (error.message.includes('CORS')) {
+          linkStatus.textContent = 'CORS error - check server configuration';
+        } else {
+          linkStatus.textContent = `Error: ${error.message}`;
+        }
+        
         linkStatus.style.color = 'red';
+        
       } finally {
+        console.groupEnd();
         sendBtn.disabled = false;
+        
+        // Add temporary debug button
+        if (!document.getElementById('debugBtn')) {
+          const debugBtn = document.createElement('button');
+          debugBtn.id = 'debugBtn';
+          debugBtn.textContent = 'View Debug Info';
+          debugBtn.style.marginTop = '10px';
+          debugBtn.onclick = () => {
+            alert('Check browser console (F12) for detailed debug information');
+          };
+          linkStatus.after(debugBtn);
+          setTimeout(() => debugBtn.remove(), 10000);
+        }
       }
     });
-  </script>
-</body>
-</html>
+
+    // Add temporary ping endpoint for testing
+    setTimeout(async () => {
+      try {
+        const response = await fetch('http://localhost:5000/ping');
+        console.log('Backend pre-check:', response.ok ? 'Connected' : 'Not ready');
+      } catch (e) {
+        console.warn('Backend not detected at startup:', e.message);
+      }
+    }, 1000);
+</script>

@@ -23,7 +23,24 @@ const server = https.createServer({ key, cert }, (req, res) => {
   });
 });
 
+// Add this to your backend (Node.js)
+app.get('/ping', (req, res) => {
+  res.json({ status: 'ok', timestamp: new Date() });
+});
+
+app.post('/analyze', (req, res) => {
+  console.log('Received URL:', req.body.url);
+  // Add CORS headers if needed
+  res.header('Access-Control-Allow-Origin', '*');
+  res.json({ 
+    success: true,
+    url: req.body.url,
+    analysis: {} // Your analysis results here
+  });
+});
+
 // 3. Start server
 server.listen(5500, '10.10.81.74', () => {
   console.log('Server running at https://10.10.81.74:5500');
 });
+
