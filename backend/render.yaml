@@ -4,6 +4,6 @@ services:
     env: python
     region: oregon
     buildCommand: pip install -r requirements.txt
-    startCommand: PYTHONPATH=src gunicorn app:app
+    startCommand: gunicorn app:app
     workingDir: backend
     plan: free
