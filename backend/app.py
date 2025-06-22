@@ -2,6 +2,10 @@ import os
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'  # only warnings and errors
+import tensorflow as tf
+
+
 from models.mesoClassifiers import Meso4
 from keras.backend import clear_session
 
