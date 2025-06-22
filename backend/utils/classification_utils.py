@@ -10,7 +10,12 @@ def calc_vid_fconf(results: list[float], real_threshold=0.6, fake_threshold=0.4)
     min_conf = np.min(results_np)
     
     weights = 1 - results_np
-    weighted_avg = np.average(results_np, weights=weights).item()
+    # Prevent ZeroDivisionError by checking if sum of weights is zero
+    if np.sum(weights) == 0:
+        weighted_avg = avg_conf.item()
+    else:
+        weighted_avg = np.average(results_np, weights=weights)
+        weighted_avg = round(weighted_avg.item(), 3)
 
     reasons = []
     fake = False
@@ -41,6 +46,6 @@ def calc_vid_fconf(results: list[float], real_threshold=0.6, fake_threshold=0.4)
     return {
         'probability': label,
         'reasoning': reasons,
-        'percent_real': round(weighted_avg, 3)
+        'percent_real': weighted_avg
     }
         
