@@ -1,6 +1,6 @@
 import numpy as np
 
-def calc_vid_fconf(results: list[float], real_threshold=0.6, fake_threshold=0.4 -> dict):
+def calc_vid_fconf(results: list[float], real_threshold=0.6, fake_threshold=0.4) -> dict:
     
     confidences = np.array(results)
     
@@ -12,6 +12,8 @@ def calc_vid_fconf(results: list[float], real_threshold=0.6, fake_threshold=0.4 
     reasoning = []
     if min_conf < 0.2:
         label = 'generated'
+        reasoning.append('At least one frame has a very low confidence score, indicating it is likely generated.')
+    elif 
         
     return {
         'avg_conf': avg_conf,
