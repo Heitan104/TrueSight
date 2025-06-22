@@ -1,9 +1,7 @@
 services:
   - type: web
-    name: flask-api
+    name: spurhacks-backend
     env: python
-    region: oregon
     buildCommand: pip install -r requirements.txt
     startCommand: gunicorn app:app
-    workingDir: backend
-    plan: free
+    rootDir: backend
