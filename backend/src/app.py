@@ -4,6 +4,7 @@ from models.mesoClassifiers import Meso4
 from analyzer import analyzer
 
 from keras.backend import clear_session
+from utils.url_handler import linkDownloader
 
 def create_app():
     app = Flask(__name__)
@@ -37,14 +38,16 @@ def create_app():
             video.save(save_path)
             
             # Run the analyzer
-            response = analyzer(UPLOAD_FOLDER, model, video, save_path)
+            response = analyzer(UPLOAD_FOLDER, model, video.filename, save_path)
             
             
             return jsonify(response), 200
 
         elif url:
             # TODO: Process URL
+            filename, save_path = linkDownloader(url, UPLOAD_FOLDER)
             
+            response = analyzer(UPLOAD_FOLDER, model, filename, save_path)
             return jsonify({
                 "error": "URL processing not implemented yet"
             })

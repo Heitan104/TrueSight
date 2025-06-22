@@ -5,7 +5,7 @@ from utils import extract_frames, cleanup_file, preprocess_image
 from utils.classification_utils import calc_vid_fconf
 
 
-def analyzer(UPLOAD_FOLDER, model, video, save_path):
+def analyzer(UPLOAD_FOLDER, model, filename, save_path):
     """
     Main analyzer function:
     - Extracts frames from uploaded video
@@ -14,7 +14,7 @@ def analyzer(UPLOAD_FOLDER, model, video, save_path):
     - Cleans up temporary files
     - Returns structured result
     """
-    frames_dir = os.path.join(UPLOAD_FOLDER, f'{video.filename}_frames')
+    frames_dir = os.path.join(UPLOAD_FOLDER, f'{filename}_frames')
     frame_paths = extract_frames(save_path, frames_dir)
 
     results = []
