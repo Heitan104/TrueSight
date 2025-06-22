@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Analysis Results | True Sight</title>
+  <meta name="theme-color" content="#222">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #222;
+      color: #e0e0e0;
+      margin: 0;
+      padding: 0;
+      line-height: 1.5;
+    }
+    
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    
+    header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    
+    h1 {
+      color: #ff4444;
+      font-size: 2rem;
+      margin-bottom: 5px;
+    }
+    
+    .result-container {
+      background-color: #333;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    }
+    
+    .pie-chart {
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      margin: 0 auto 15px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .pie-chart::before {
+      content: '';
+      position: absolute;
+      width: 80%;
+      height: 80%;
+      border-radius: 50%;
+      background-color: #333;
+    }
+    
+    .percentage {
+      position: relative;
+      z-index: 1;
+      font-size: 2rem;
+      font-weight: bold;
+    }
+    
+    .result-label {
+      text-align: center;
+      font-size: 1rem;
+      margin-bottom: 20px;
+      font-weight: bold;
+    }
+    
+    .reasoning-section {
+      background-color: #2a2a2a;
+      border-radius: 6px;
+      padding: 15px;
+    }
+    
+    .reasoning-section h2 {
+      color: #ff4444;
+      font-size: 1.2rem;
+      margin-top: 0;
+      margin-bottom: 10px;
+    }
+    
+    .editable-reasoning {
+      min-height: 100px;
+      background-color: #333;
+      border: 1px solid #444;
+      border-radius: 4px;
+      padding: 10px;
+      color: #e0e0e0;
+      font-size: 0.9rem;
+      outline: none;
+    }
+    
+    .editable-reasoning:focus {
+      border-color: #ff4444;
+    }
+    
+    .back-button {
+      display: block;
+      width: 100%;
+      padding: 10px;
+      background-color: #ff4444;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      text-align: center;
+      margin-top: 15px;
+      transition: background-color 0.2s;
+    }
+    
+    .back-button:hover {
+      background-color: #ff3333;
+    }
+
+    /* Dynamic color classes */
+    .real-color {
+      color: #4CAF50;
+    }
+    .fake-color {
+      color: #ff4444;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>TRUE SIGHT</h1>
+      <p>Analysis Results</p>
+    </header>
+    
+    <div class="result-container">
+      <div class="pie-chart" id="resultPieChart">
+        <div class="percentage" id="resultPercentage">0%</div>
+      </div>
+      <div class="result-label" id="resultLabel">ANALYZING</div>
+      
+      <div class="reasoning-section">
+        <h2>Reasoning</h2>
+        <div class="editable-reasoning" id="resultReasoning" contenteditable="true">
+          Loading analysis results...
+        </div>
+      </div>
+      
+      <button class="back-button" onclick="window.location.href='index.html'">
+        <i class="fas fa-arrow-left"></i> Back to Analyzer
+      </button>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Get the analysis result from localStorage or use sample data
+      const result = JSON.parse(localStorage.getItem('analysisResult')) || {
+        percent_real: 86,
+        probability: "REAL",
+        reasoning: "Average confidence above 0.6"
+      };
+
+      // Update UI elements
+      const percentageElement = document.getElementById('resultPercentage');
+      const labelElement = document.getElementById('resultLabel');
+      const reasoningElement = document.getElementById('resultReasoning');
+      const pieChartElement = document.getElementById('resultPieChart');
+
+      // Set percentage
+      percentageElement.textContent = result.percent_real + '%';
+      
+      // Set label and colors based on probability
+      const isReal = result.probability === "REAL";
+      labelElement.textContent = result.probability;
+      labelElement.classList.add(isReal ? 'real-color' : 'fake-color');
+      percentageElement.classList.add(isReal ? 'real-color' : 'fake-color');
+
+      // Update pie chart gradient
+      pieChartElement.style.background = `conic-gradient(
+        ${isReal ? '#4CAF50' : '#ff4444'} 0% ${result.percent_real}%,
+        #444 ${result.percent_real}% 100%
+      )`;
+
+      // Set reasoning text
+      reasoningElement.innerHTML = '• ' + result.reasoning;
+
+      // Save edits to localStorage
+      reasoningElement.addEventListener('input', function() {
+        localStorage.setItem('savedReasoning', this.innerHTML);
+      });
+      
+      // Load saved edits if they exist
+      const savedReasoning = localStorage.getItem('savedReasoning');
+      if (savedReasoning) {
+        reasoningElement.innerHTML = savedReasoning;
+      }
+    });
+  </script>
+</body>
+</html>

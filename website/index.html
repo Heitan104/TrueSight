@@ -7,7 +7,135 @@
   <meta name="theme-color" content="#222">
   <link rel="manifest" href="/manifest.json">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="stylesheet" href="styles.css">
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #222;
+      color: #e0e0e0;
+      margin: 0;
+      padding: 0;
+    }
+    
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    
+    header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    
+    h1 {
+      color: #ff4444;
+      font-size: 2.5rem;
+      margin-bottom: 10px;
+    }
+    
+    .link-box {
+      background-color: #333;
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+    
+    #linkInput {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #444;
+      border-radius: 5px;
+      background-color: #2a2a2a;
+      color: #e0e0e0;
+      font-size: 1rem;
+      margin-bottom: 10px;
+    }
+    
+    .button-group {
+      display: flex;
+      gap: 10px;
+    }
+    
+    #pasteBtn, #sendBtn {
+      flex: 1;
+      padding: 12px;
+      border: none;
+      border-radius: 5px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    
+    #pasteBtn {
+      background-color: #444;
+      color: white;
+    }
+    
+    #sendBtn {
+      background-color: #ff4444;
+      color: white;
+      max-width: 50px;
+    }
+    
+    .status-message {
+      margin-top: 10px;
+      min-height: 20px;
+      font-size: 0.9rem;
+    }
+    
+    .divider {
+      text-align: center;
+      margin: 20px 0;
+      color: #666;
+    }
+    
+    .drop-zone {
+      background-color: #333;
+      border-radius: 10px;
+      padding: 30px;
+      text-align: center;
+      border: 2px dashed #444;
+      margin-bottom: 20px;
+    }
+    
+    .file-upload-label {
+      cursor: pointer;
+    }
+    
+    .cloud-icon {
+      font-size: 2.5rem;
+      color: #666;
+      margin-bottom: 10px;
+    }
+    
+    .hint {
+      color: #666;
+      font-size: 0.8rem;
+      margin-top: 5px;
+    }
+    
+    .selected-file {
+      margin: 15px 0;
+      font-size: 0.9rem;
+    }
+    
+    .upload-button {
+      width: 100%;
+      padding: 12px;
+      background-color: #ff4444;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    
+    .upload-button:disabled {
+      background-color: #444;
+      cursor: not-allowed;
+    }
+  </style>
   <!-- For Samsung Internet -->
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="application-name" content="True Sight">
@@ -54,40 +182,66 @@
     </main>
   </div>
 
-  <script src="/app.js"></script>
-  
   <script>
-    // Link Submission Logic with Debugging
+    // Link Submission Logic
     const linkForm = document.getElementById('linkForm');
     const linkInput = document.getElementById('linkInput');
     const sendBtn = document.getElementById('sendBtn');
     const pasteBtn = document.getElementById('pasteBtn');
     const linkStatus = document.getElementById('linkStatus');
+    const fileInput = document.getElementById('fileInput');
+    const uploadBtn = document.getElementById('uploadBtn');
+    const selectedFileName = document.getElementById('selectedFileName');
+    const uploadStatus = document.getElementById('uploadStatus');
 
-    // Enhanced paste button with error handling
+    // Paste button
     pasteBtn.addEventListener('click', async () => {
       try {
-        const permission = await navigator.permissions.query({ name: 'clipboard-read' });
-        if (permission.state === 'denied') {
-          throw new Error('Clipboard permission denied');
-        }
         const text = await navigator.clipboard.readText();
         linkInput.value = text;
         linkStatus.textContent = 'Pasted from clipboard!';
         linkStatus.style.color = 'green';
         setTimeout(() => linkStatus.textContent = '', 2000);
       } catch (err) {
-        console.error('Clipboard error:', err);
         linkStatus.textContent = 'Clipboard access failed - paste manually';
         linkStatus.style.color = 'red';
         setTimeout(() => linkStatus.textContent = '', 3000);
       }
     });
 
-    // Enhanced link submission with debugging
+    // File input handling
+    fileInput.addEventListener('change', () => {
+      if (fileInput.files.length > 0) {
+        selectedFileName.textContent = fileInput.files[0].name;
+        uploadBtn.disabled = false;
+      } else {
+        selectedFileName.textContent = '';
+        uploadBtn.disabled = true;
+      }
+    });
+
+    // Drag and drop
+    const dropZone = document.getElementById('uploadForm');
+    dropZone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropZone.style.borderColor = '#ff4444';
+    });
+
+    dropZone.addEventListener('dragleave', () => {
+      dropZone.style.borderColor = '#444';
+    });
+
+    dropZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropZone.style.borderColor = '#444';
+      fileInput.files = e.dataTransfer.files;
+      selectedFileName.textContent = fileInput.files[0].name;
+      uploadBtn.disabled = false;
+    });
+
+    // Form submission
     linkForm.addEventListener('submit', async (e) => {
       e.preventDefault();
-      
       const link = linkInput.value.trim();
       if (!link) {
         linkStatus.textContent = 'Please enter a link first';
@@ -100,94 +254,47 @@
       linkStatus.style.color = '#000';
 
       try {
-        console.group('Link Submission Debug');
-        console.log('Attempting to send link:', link);
+        // Try to load sample data first
+        const response = await fetch('sample-analysis.json');
+        if (!response.ok) throw new Error('Failed to load sample data');
         
-        // Test backend connectivity first
-        console.log('Testing backend connectivity...');
-        const pingStart = Date.now();
-        const pingResponse = await fetch('http://localhost:5000/ping', {
-          method: 'GET',
-          headers: { 'Content-Type': 'application/json' }
-        }).catch(() => null);
-        
-        if (!pingResponse || !pingResponse.ok) {
-          throw new Error('Backend is not responding. Is your server running?');
-        }
-        console.log(`Backend ping successful (${Date.now() - pingStart}ms)`);
-
-        // Send the actual request
-        console.log('Sending analysis request...');
-        const startTime = Date.now();
-        const response = await fetch('http://localhost:5000/analyze', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-          },
-          body: JSON.stringify({ url: link })
-        });
-        const duration = Date.now() - startTime;
-        
-        console.log(`Received response in ${duration}ms`, response);
-        
-        if (!response.ok) {
-          const errorData = await response.json().catch(() => ({}));
-          console.error('Backend error:', errorData);
-          throw new Error(errorData.message || `Server error: ${response.status}`);
-        }
-
         const result = await response.json();
-        console.log('Analysis result:', result);
-        
-        linkStatus.textContent = 'Analysis complete!';
-        linkStatus.style.color = 'green';
-        
-        // Optional: Redirect or display results
-        if (result.redirectUrl) {
-          window.location.href = result.redirectUrl;
-        }
+        localStorage.setItem('analysisResult', JSON.stringify(result));
+        window.location.href = 'result.html';
         
       } catch (error) {
-        console.error('Full error:', error);
-        
-        // Detailed error messages
-        if (error.message.includes('Failed to fetch')) {
-          linkStatus.textContent = 'Connection failed - check backend server';
-        } else if (error.message.includes('CORS')) {
-          linkStatus.textContent = 'CORS error - check server configuration';
-        } else {
-          linkStatus.textContent = `Error: ${error.message}`;
-        }
-        
+        console.error('Error:', error);
+        linkStatus.textContent = 'Error analyzing content';
         linkStatus.style.color = 'red';
-        
       } finally {
-        console.groupEnd();
         sendBtn.disabled = false;
-        
-        // Add temporary debug button
-        if (!document.getElementById('debugBtn')) {
-          const debugBtn = document.createElement('button');
-          debugBtn.id = 'debugBtn';
-          debugBtn.textContent = 'View Debug Info';
-          debugBtn.style.marginTop = '10px';
-          debugBtn.onclick = () => {
-            alert('Check browser console (F12) for detailed debug information');
-          };
-          linkStatus.after(debugBtn);
-          setTimeout(() => debugBtn.remove(), 10000);
-        }
       }
     });
 
-    // Add temporary ping endpoint for testing
-    setTimeout(async () => {
+    // File upload form
+    uploadForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!fileInput.files.length) return;
+      
+      uploadBtn.disabled = true;
+      uploadStatus.textContent = 'Analyzing file...';
+      uploadStatus.style.color = '#000';
+
       try {
-        const response = await fetch('http://localhost:5000/ping');
-        console.log('Backend pre-check:', response.ok ? 'Connected' : 'Not ready');
-      } catch (e) {
-        console.warn('Backend not detected at startup:', e.message);
+        // Simulate file analysis with sample data
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        const response = await fetch('sample-analysis.json');
+        const result = await response.json();
+        localStorage.setItem('analysisResult', JSON.stringify(result));
+        window.location.href = 'result.html';
+        
+      } catch (error) {
+        uploadStatus.textContent = 'Error analyzing file';
+        uploadStatus.style.color = 'red';
+      } finally {
+        uploadBtn.disabled = false;
       }
-    }, 1000);
-</script>
+    });
+  </script>
+</body>
+</html>
