@@ -1,9 +1,13 @@
 import os
 from flask import Flask, request, jsonify
+<<<<<<< HEAD
 from models.mesoClassifiers import Meso4
 from analyzer import analyzer
 
 from keras.backend import clear_session
+=======
+from src.routes import init_routes
+>>>>>>> 726a600b6234308ee037197c1d85824574ac7355
 
 def create_app():
     app = Flask(__name__)
@@ -13,11 +17,14 @@ def create_app():
     UPLOAD_FOLDER = 'static/uploads'
     os.makedirs(UPLOAD_FOLDER, exist_ok=True)
     
+<<<<<<< HEAD
     # Load Model 
     clear_session()  # Clear any previous session
     model = Meso4()
     model.load('models/Meso4_DF.h5')
     
+=======
+>>>>>>> 726a600b6234308ee037197c1d85824574ac7355
     @app.route('/')
     def index():
         return jsonify({"message": "Welcome to the Flask app!"})
