@@ -1,5 +1,9 @@
 import os
 from flask import Flask, request, jsonify
+from models.mesoClassifiers import Meso4
+from utils.video_utils import analyzer
+
+from keras.backend import clear_session
 
 def create_app():
     app = Flask(__name__)
@@ -8,6 +12,11 @@ def create_app():
     app.config.from_envvar('APP_CONFIG', silent=True)
     UPLOAD_FOLDER = 'static/uploads'
     os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+    
+    # Load Model 
+    clear_session()  # Clear any previous session
+    model = Meso4()
+    model.load('models/Meso4_DF.h5')
     
     @app.route('/')
     def index():
@@ -27,16 +36,15 @@ def create_app():
             save_path = os.path.join(UPLOAD_FOLDER, video.filename)
             video.save(save_path)
             
-            # TODO: Run Model
-            fake_prob = 0.84
+            # Run the analyzer
+            response = analyzer(UPLOAD_FOLDER, model, video, save_path)
             
-            return jsonify({
-                "probability": fake_prob,
-                "likely_fake": fake_prob > 0.5,
-                "explanation": "blurry, low resolution, or other artifacts",
-                }), 200
+            
+            return jsonify(response), 200
 
         elif url:
+            # TODO: Process URL
+            
             return jsonify({
                 "error": "URL processing not implemented yet"
             })
