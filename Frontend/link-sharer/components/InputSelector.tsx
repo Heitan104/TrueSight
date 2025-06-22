@@ -120,7 +120,7 @@ const InputSelector = () => {
 
       {/* Footer at bottom */}
       <View style={styles.footer}>
-        <Text style={styles.footerText}>© 2025 TrueSight • Built with 💡</Text>
+        <Text style={styles.footerText}>© 2025 TrueSight</Text>
       </View>
     </View>
   );

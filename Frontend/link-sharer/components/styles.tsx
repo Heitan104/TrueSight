@@ -11,11 +11,15 @@ const styles = StyleSheet.create({
   // Header Styles
   header: {
     marginBottom: 40,
+    width: '100%',
+    alignItems: 'center',
+    paddingTop: 60, // Increased top padding (from 40 to 60)
   },
   logo: {
-    fontSize: 32,
+    fontSize: 40,
     fontWeight: 'bold',
-    color: '#b700ff',
+    color: '#e0a8ff',
+    textAlign: 'center',
   },
 
   // Centered Content
@@ -34,9 +38,9 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     borderWidth: 1,
-    borderColor: '#9b59b6',
+    borderColor: '#e0a8ff',
     borderRadius: 25,
-    padding: 15,
+    padding: 18,
     fontSize: 16,
     color: '#fff',
     backgroundColor: '#1a1a1a',
@@ -47,12 +51,20 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   iconButton: {
-    padding: 12,
+    padding: 15,
     borderRadius: 25,
-    backgroundColor: '#9b59b6',
+    borderWidth: 2, // Added border
+    borderColor: '#e0a8ff', // Pink border
+    backgroundColor: 'transparent', // Removed pink background
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  iconButtonIcon: {
+    color: '#000000', // Black icons
+    fontSize: 20,
   },
 
-  // Divider - Now clearly visible
+  // Divider
   divider: {
     alignItems: 'center',
     marginVertical: 30,
@@ -63,7 +75,7 @@ const styles = StyleSheet.create({
     letterSpacing: 2,
   },
   dividerLabel: {
-    color: '#9b59b6',
+    color: '#e0a8ff',
     fontSize: 14,
     marginVertical: 5,
     fontWeight: 'bold',
@@ -71,10 +83,10 @@ const styles = StyleSheet.create({
 
   // Dropbox Styles
   dropbox: {
-    padding: 30,
+    padding: 35,
     borderWidth: 2,
     borderStyle: 'dashed',
-    borderColor: '#9b59b6',
+    borderColor: '#e0a8ff',
     borderRadius: 12,
     backgroundColor: '#2a2a2a',
     alignItems: 'center',
@@ -82,9 +94,10 @@ const styles = StyleSheet.create({
   },
   dropboxIcon: {
     marginBottom: 15,
+    color: '#e0a8ff',
   },
   dropboxText: {
-    color: '#9b59b6',
+    color: '#e0a8ff',
     fontSize: 16,
     textAlign: 'center',
     marginBottom: 5,
@@ -103,15 +116,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   footerText: {
-    color: '#555',
+    color: '#ffffff',
     fontSize: 12,
   },
   downloadingText: {
-  color: '#9b59b6',
-  fontSize: 14,
-  marginTop: 10,
-  fontStyle: 'italic',
-},
+    color: '#e0a8ff',
+    fontSize: 14,
+    marginTop: 10,
+    fontStyle: 'italic',
+  },
 });
 
 export default styles;
