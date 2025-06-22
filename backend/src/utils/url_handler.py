@@ -1,13 +1,13 @@
 import os
 import yt_dlp
 
-def linkDownloader(url, inputPath="spurhacks2025/backend/src/static/uploads"):
+def linkDownloader(url, inputPath="backend/src/static/uploads"):
 
-    path = os.path.abspath(inputPath)
-    os.makedirs(path, exist_ok=True)
-    
+    save_dir = os.path.join("..", inputPath)
+    os.makedirs(save_dir, exist_ok=True)
+
     ydl_opts = {
-        'outtmpl': os.path.join(path, '%(title)s.%(ext)s'),
+        'outtmpl': os.path.join(save_dir, '%(title)s.%(ext)s'),
         'format': 'mp4',
         'verbose': True
     }
