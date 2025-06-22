@@ -11,7 +11,8 @@ def create_app():
     
     # Load configuration from environment variables
     app.config.from_envvar('APP_CONFIG', silent=True)
-    UPLOAD_FOLDER = 'static/uploads'
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+    UPLOAD_FOLDER = os.path.join(BASE_DIR, 'static', 'uploads')
     os.makedirs(UPLOAD_FOLDER, exist_ok=True)
     
     # Load Model 
@@ -36,7 +37,7 @@ def create_app():
             # TODO: Process Uploaded video
             save_path = os.path.join(UPLOAD_FOLDER, video.filename)
             video.save(save_path)
-            
+            print(f"Video saved to {save_path} and file name is {video.filename}")
             # Run the analyzer
             response = analyzer(UPLOAD_FOLDER, model, video.filename, save_path)
             
@@ -44,13 +45,13 @@ def create_app():
             return jsonify(response), 200
 
         elif url:
-            # TODO: Process URL
+            
             filename, save_path = linkDownloader(url, UPLOAD_FOLDER)
             
+            print(f"Video downloaded to {save_path} and file name is {filename}")
+            
             response = analyzer(UPLOAD_FOLDER, model, filename, save_path)
-            return jsonify({
-                "error": "URL processing not implemented yet"
-            })
+            return jsonify(response), 200
 
     return app
 
