@@ -1,7 +1,7 @@
 import os
 from flask import Flask, request, jsonify
 from models.mesoClassifiers import Meso4
-from utils.video_utils import analyzer
+from analyzer import analyzer
 
 from keras.backend import clear_session
 
