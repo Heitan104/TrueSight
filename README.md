@@ -19,4 +19,6 @@ Social media is flooded with AI-generated content, but checking authenticity *ma
 - **Frontend**: [HTML,CSS,JS] 
 - **Hosting**: "[Vercel]
 
+## Setup Instructions
+
 
