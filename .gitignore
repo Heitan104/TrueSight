@@ -54,3 +54,10 @@ Thumbs.db
 
 # === VS Code ===
 .vscode/
+
+dist
+dist-ssr
+*.local
+count.txt
+.nitro
+.tanstack
