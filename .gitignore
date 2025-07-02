@@ -61,3 +61,6 @@ dist-ssr
 count.txt
 .nitro
 .tanstack
+
+# === Secrets ===
+secrets/youtube_cookies.txt
