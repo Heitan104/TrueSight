@@ -64,3 +64,4 @@ count.txt
 
 # === Secrets ===
 secrets/youtube_cookies.txt
+backend/secrets/youtube_cookies.txt
