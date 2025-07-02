@@ -31,7 +31,7 @@ def linkDownloader(url, upload_folder=None):
     print(f"Using cookies from: {COOKIES_FILE}")
 
     ydl_opts = {
-        'cookies': COOKIES_FILE,
+        'cookiefile': COOKIES_FILE,
         'outtmpl': os.path.join(upload_folder, '%(title)s.%(ext)s'),
         'format': 'mp4',
         'progress_hooks': [progress_hook],
