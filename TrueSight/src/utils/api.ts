@@ -16,7 +16,7 @@ export async function analyzeVideo(input: { video?: File; url?: string }): Promi
   console.log('Sending form data:', formData)
 
   try {
-    const response = await axios.post('http://localhost:5000/analyze', formData, {
+    const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/analyze`, formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
     })
     return response.data

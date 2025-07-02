@@ -1,6 +1,8 @@
 import { useMutation } from '@tanstack/react-query'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import type { TuploadVideoSchema } from '@/lib/types'
 import { analyzeVideo } from '@/utils/api'
+import { VideoForm } from '@/components/videoForm'
 
 export const Route = createFileRoute('/form')({
   component: UploadPage,
@@ -27,15 +29,8 @@ function UploadPage() {
     },
   })
   
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    const formData = new FormData(e.currentTarget)
-    const video = formData.get('video') as File | null
-    const url = formData.get('url') as string | null
-    mutation.mutate({
-      video: video ?? undefined,
-      url: url ?? undefined,
-    })
+  const handleVideoFormSubmit = (data: TuploadVideoSchema) => {
+    mutation.mutate(data)
   }
 
 
@@ -44,12 +39,14 @@ function UploadPage() {
 
 
   return (
-    <form onSubmit={handleSubmit}>
-      <input type='text' name='url' placeholder='Enter a video URL' />
-      <input type='file' name='video' accept='video/*' />
-      <button type='submit' disabled={mutation.isPending}>
-        {mutation.isPending ? 'Analyzing...' : 'Analyze Video'}
-        </button>
-    </form>
+    <>
+      <div className="flex flex-col items-center justify-center min-h-screen bg-[#181a20] text-white p-4">
+        <div className="mt-8 flex justify-center items-center">
+          <div className="bg-gray-100 text-black rounded-lg shadow-lg p-8 w-full max-w-md">
+            <VideoForm onSubmit={handleVideoFormSubmit} />
+          </div>
+        </div>
+      </div>
+    </>
   )
 }
