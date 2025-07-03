@@ -27,11 +27,11 @@ def linkDownloader(url, upload_folder=None):
         if d['status'] == 'finished':
             downloaded_path['filepath'] = d['filename']
             
-    COOKIES_FILE = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'secrets', 'youtube_cookies.txt'))
-    print(f"Using cookies from: {COOKIES_FILE}")
+    # COOKIES_FILE = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'secrets', 'youtube_cookies.txt'))
+    # print(f"Using cookies from: {COOKIES_FILE}")
 
     ydl_opts = {
-        'cookiefile': COOKIES_FILE,
+        # 'cookiefile': COOKIES_FILE,
         'outtmpl': os.path.join(upload_folder, '%(title)s.%(ext)s'),
         'format': 'mp4',
         'progress_hooks': [progress_hook],
